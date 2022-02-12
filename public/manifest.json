@@ -1,0 +1,19 @@
+{
+    "name": "Paranoia@VK",
+    "description": "Privacy tool for VK messenger.",
+    "version": "1.0",
+    "manifest_version": 2,
+    "page_action": {
+        "default_popup": "popup.html"
+    },
+    "background":{
+        "scripts":["background.js"],
+        "persistent":false
+    },
+    "permissions":["declarativeContent"],
+    "content_scripts": [{
+        "matches": ["*://vk.com/im*"],
+        "js": ["contentscript.js"]
+    }]
+
+}
