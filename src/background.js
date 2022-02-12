@@ -17,9 +17,10 @@ chrome.runtime.onInstalled.addListener(function () {
   });
 });
 
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-  // read changeInfo data and do something with it (like read the url)
-  if (changeInfo.url) {
-    console.log(changeInfo.url);
-  }
-});
+// chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+//   // read changeInfo data and do something with it (like read the url)
+//   console.log("something has changed");
+//   if (changeInfo.url) {
+//     console.log(changeInfo.url);
+//   }
+// });
