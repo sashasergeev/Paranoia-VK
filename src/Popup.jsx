@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { render } from "react-dom";
 
+import AES from "crypto-js/aes";
+import enc from "crypto-js/enc-utf8";
+
 const styles = {
   container: {
     background: "#573fb5c7",
@@ -38,11 +41,36 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
+    gap: "10px",
+  },
+  Key: {
+    fontWeight: "700",
+    fontSize: "20px",
   },
 };
 
 const Popup = () => {
   const [chosen, setChosen] = useState(false);
+  const [key, setKey] = useState();
+
+  const handleKeyGeneration = (e) => {
+    const genKey = crypto.randomUUID();
+    setKey(genKey);
+    // checkAES(genKey);
+  };
+
+  // const checkAES = (genKey) => {
+  //   // checking how to encrypt/decrypt things
+  //   console.log("key", genKey);
+  //   const message = "Hi, i am sasha! i've beeen here before....";
+
+  //   const encrypt = AES.encrypt(message, genKey);
+  //   console.log("encrypt", encrypt);
+  //   console.log("encrypt-string", encrypt.toString());
+
+  //   console.log("decrypt", AES.decrypt(encrypt, genKey));
+  //   console.log("decrypt-toString", AES.decrypt(encrypt, genKey).toString(enc));
+  // };
 
   useEffect(() => {
     chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
@@ -67,8 +95,17 @@ const Popup = () => {
             <img style={styles.chosenImg} src={chosen.profileImg} />
           </div>
           <div style={styles.contentContainer}>
-            <div>Ключ</div>
-            <button style={styles.generateBtn}>Генерировать</button>
+            <div style={styles.Key}>Ключ</div>
+            {key ? (
+              <div style={styles.contentContainer}>
+                <input readOnly value={key} type="text" />
+                Поделитесь этим ключом с собеседником.
+              </div>
+            ) : (
+              <button onClick={handleKeyGeneration} style={styles.generateBtn}>
+                Генерировать
+              </button>
+            )}
           </div>
         </>
       ) : (

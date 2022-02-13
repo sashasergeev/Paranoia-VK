@@ -3,10 +3,6 @@ const getNumOfDialogs = () => {
   return dialogs.length;
 };
 
-// document
-// .querySelectorAll(".im-mess--text")
-// .forEach((e) => (e.innerHTML = "Working"));
-
 // chrome.runtime.onMessage.addListener((reques, sender, callback) => {
 // console.log("Message received from sender", sender.id, reques);
 // callback(getNumOfDialogs());
@@ -18,14 +14,12 @@ let SELECTED_DIALOG_ID;
 const getDialogInfo = () => {
   const name = document.querySelector("._im_page_peer_name").textContent.trim();
   const profileImg = document.querySelector(".nim-peer_smaller  img").src;
-  return { name, profileImg };
+  return { name, profileImg, SELECTED_DIALOG_ID };
 };
 
 const observeIsDialogSelected = () => {
   const profileID = document.location.search;
-  if (profileID !== "" && SELECTED_DIALOG_ID !== profileID) {
-    SELECTED_DIALOG_ID = profileID;
-  } else {
+  if (SELECTED_DIALOG_ID !== profileID) {
     SELECTED_DIALOG_ID = profileID;
   }
 };
