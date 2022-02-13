@@ -6,7 +6,7 @@ import enc from "crypto-js/enc-utf8";
 
 const styles = {
   container: {
-    background: "#573fb5c7",
+    background: "#c1b7eb",
     textAlign: "center",
     width: "275px",
     height: "400px",
@@ -18,7 +18,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-around",
-    backgroundColor: "#5d4e97",
+    backgroundColor: "#171420",
     boxShadow: "-1px 0px 14px 0px #00000085",
     padding: "5px",
     marginBottom: "5px",
@@ -29,7 +29,7 @@ const styles = {
     height: "35px",
     borderRadius: "100%",
   },
-  tradeMark: { color: "#b5b5b575", fontWeight: "600", paddingBottom: "5px" },
+  tradeMark: { color: "#787878", fontWeight: "600", paddingBottom: "5px" },
   ActionBtn: {
     padding: "7px 14px",
     border: "none",
@@ -47,6 +47,19 @@ const styles = {
     fontWeight: "700",
     fontSize: "20px",
   },
+  deleteBtn: {
+    color: "white",
+    background: "#d95996",
+    cursor: "pointer",
+    fontSize: "13px",
+    padding: "5px 9px",
+    borderRadius: "9999px",
+  },
+  KeyInput: {
+    border: "none",
+    padding: "5px 9px",
+    borderRadius: "99px",
+  },
 };
 
 const Popup = () => {
@@ -60,6 +73,7 @@ const Popup = () => {
   // ref to input with users key
   const keyInputRef = useRef();
 
+  // managing key in storage
   const saveKey = () => {
     const value = { [chosen.SELECTED_DIALOG_ID]: key };
     chrome.storage.local.get("keys", (vals) => {
@@ -67,11 +81,15 @@ const Popup = () => {
       chrome.storage.local.set({ keys });
     });
   };
-
-  const handleKeyGeneration = (e) => {
-    const genKey = crypto.randomUUID();
-    setKey(genKey);
+  const clearKey = () => {
+    chrome.storage.local.get("keys", ({ keys }) => {
+      delete keys[chosen.SELECTED_DIALOG_ID];
+      chrome.storage.local.set({ keys });
+    });
+    setKey(false);
   };
+
+  const handleKeyGeneration = (e) => setKey(crypto.randomUUID());
 
   const checkAES = (genKey) => {
     // checking how to encrypt/decrypt things
@@ -126,9 +144,18 @@ const Popup = () => {
           {loaded ? (
             <div style={styles.contentContainer}>
               <div style={styles.Key}>Ключ</div>
+
               {key ? (
                 <div style={styles.contentContainer}>
-                  <input readOnly value={key} type="text" />
+                  <div style={styles.deleteBtn} onClick={clearKey}>
+                    Удалить
+                  </div>
+                  <input
+                    readOnly
+                    style={styles.ActionBtn}
+                    value={key}
+                    type="text"
+                  />
                   Поделитесь этим ключом с собеседником.
                 </div>
               ) : (
@@ -144,6 +171,7 @@ const Popup = () => {
                     ref={keyInputRef}
                     type="text"
                     placeholder="Введите ключ..."
+                    style={styles.KeyInput}
                   />
                   <button
                     onClick={() => setKey(keyInputRef.current.value)}
