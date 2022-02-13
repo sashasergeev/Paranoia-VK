@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { render } from "react-dom";
 
 import AES from "crypto-js/aes";
@@ -30,7 +30,7 @@ const styles = {
     borderRadius: "100%",
   },
   tradeMark: { color: "#b5b5b575", fontWeight: "600", paddingBottom: "5px" },
-  generateBtn: {
+  ActionBtn: {
     padding: "7px 14px",
     border: "none",
     borderRadius: "20px",
@@ -50,36 +50,65 @@ const styles = {
 };
 
 const Popup = () => {
+  // dialog data (name, profile Pic, user ID)
   const [chosen, setChosen] = useState(false);
+  // key to encrypt/decrypt messages
   const [key, setKey] = useState();
+  // state to make sure storage is checked whether there is a key or not
+  const [loaded, setLoaded] = useState(false);
+
+  // ref to input with users key
+  const keyInputRef = useRef();
+
+  const saveKey = () => {
+    const value = { [chosen.SELECTED_DIALOG_ID]: key };
+    chrome.storage.local.get("keys", (vals) => {
+      let keys = { ...vals.keys, ...value };
+      chrome.storage.local.set({ keys });
+    });
+  };
 
   const handleKeyGeneration = (e) => {
     const genKey = crypto.randomUUID();
     setKey(genKey);
-    // checkAES(genKey);
   };
 
-  // const checkAES = (genKey) => {
-  //   // checking how to encrypt/decrypt things
-  //   console.log("key", genKey);
-  //   const message = "Hi, i am sasha! i've beeen here before....";
+  const checkAES = (genKey) => {
+    // checking how to encrypt/decrypt things
+    console.log("key", genKey);
+    const message = "Hi, i am sasha! i've beeen here before....";
 
-  //   const encrypt = AES.encrypt(message, genKey);
-  //   console.log("encrypt", encrypt);
-  //   console.log("encrypt-string", encrypt.toString());
+    const encrypt = AES.encrypt(message, genKey);
+    console.log("encrypt", encrypt);
+    console.log("encrypt-string", encrypt.toString());
 
-  //   console.log("decrypt", AES.decrypt(encrypt, genKey));
-  //   console.log("decrypt-toString", AES.decrypt(encrypt, genKey).toString(enc));
-  // };
+    console.log("decrypt", AES.decrypt(encrypt, genKey));
+    console.log("decrypt-toString", AES.decrypt(encrypt, genKey).toString(enc));
+  };
 
   useEffect(() => {
     chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
       const currentTabID = tabs.length === 0 ? 0 : tabs[0].id;
       chrome.tabs.sendMessage(currentTabID, "", (response) => {
         setChosen(response);
+        chrome.storage.local.get(["keys"], (values) => {
+          // need to implement loading screen until the moment storage is checked
+          if (values.keys) {
+            if (values.keys.hasOwnProperty(response.SELECTED_DIALOG_ID)) {
+              setKey(values.keys[response.SELECTED_DIALOG_ID]);
+            }
+          }
+          setLoaded(true);
+        });
       });
     });
   }, []);
+
+  useEffect(() => {
+    if (key) {
+      saveKey();
+    }
+  }, [key]);
 
   return (
     <div
@@ -94,19 +123,40 @@ const Popup = () => {
             <span style={styles.chosenTitle}>{chosen.name}</span>{" "}
             <img style={styles.chosenImg} src={chosen.profileImg} />
           </div>
-          <div style={styles.contentContainer}>
-            <div style={styles.Key}>Ключ</div>
-            {key ? (
-              <div style={styles.contentContainer}>
-                <input readOnly value={key} type="text" />
-                Поделитесь этим ключом с собеседником.
-              </div>
-            ) : (
-              <button onClick={handleKeyGeneration} style={styles.generateBtn}>
-                Генерировать
-              </button>
-            )}
-          </div>
+          {loaded ? (
+            <div style={styles.contentContainer}>
+              <div style={styles.Key}>Ключ</div>
+              {key ? (
+                <div style={styles.contentContainer}>
+                  <input readOnly value={key} type="text" />
+                  Поделитесь этим ключом с собеседником.
+                </div>
+              ) : (
+                <div style={styles.contentContainer}>
+                  <button
+                    onClick={handleKeyGeneration}
+                    style={styles.ActionBtn}
+                  >
+                    Генерировать
+                  </button>
+                  В случае, если с вами уже поделились ключом:
+                  <input
+                    ref={keyInputRef}
+                    type="text"
+                    placeholder="Введите ключ..."
+                  />
+                  <button
+                    onClick={() => setKey(keyInputRef.current.value)}
+                    style={styles.ActionBtn}
+                  >
+                    Применить
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>Loading</>
+          )}
         </>
       ) : (
         <h1 style={styles.pickDialog}>Выберите диалог</h1>
