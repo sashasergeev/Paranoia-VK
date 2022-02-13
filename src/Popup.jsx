@@ -125,6 +125,7 @@ const Popup = () => {
   useEffect(() => {
     if (key) {
       saveKey();
+      // checkAES(key);
     }
   }, [key]);
 
