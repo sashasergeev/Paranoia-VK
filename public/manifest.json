@@ -13,7 +13,8 @@
     "permissions":["declarativeContent", "tabs", "storage"],
     "content_scripts": [{
         "matches": ["*://vk.com/im*"],
-        "js": ["contentscript.js"]
+        "js": ["contentscript.js"],
+        "css": ["main.css"] 
     }]
 
 }

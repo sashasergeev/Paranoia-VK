@@ -30,7 +30,7 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       // manage manifest.json file
-      patterns: [{ from: "public" }],
+      patterns: [{ from: "public" }, { from: "src/styles" }],
     }),
     new HtmlWebpackPlugin({
       // manage .html

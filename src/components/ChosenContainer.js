@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 
 const ChosenContainer = ({
   styles,
@@ -8,8 +8,9 @@ const ChosenContainer = ({
   clearKey,
   handleKeyGeneration,
   chosen,
-  keyInputRef,
 }) => {
+  const keyInputRef = useRef();
+
   return (
     <>
       <div style={styles.chosenContainer}>
@@ -45,7 +46,10 @@ const ChosenContainer = ({
                 placeholder="Введите ключ..."
                 style={styles.KeyInput}
               />
-              <button onClick={handleCustomKeyClick} style={styles.ActionBtn}>
+              <button
+                onClick={() => handleCustomKeyClick(keyInputRef.current.value)}
+                style={styles.ActionBtn}
+              >
                 Применить
               </button>
             </div>

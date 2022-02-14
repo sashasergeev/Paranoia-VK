@@ -1,10 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { render } from "react-dom";
 
 import Status from "./components/Status";
 
-import AES from "crypto-js/aes";
-import enc from "crypto-js/enc-utf8";
 import ChosenContainer from "./components/ChosenContainer";
 import TurnedOff from "./components/TurnedOff";
 
@@ -77,9 +75,6 @@ const Popup = () => {
   // state of app
   const [status, setStatus] = useState(false);
 
-  // ref to input with users key
-  const keyInputRef = useRef();
-
   // managing key in storage
   const saveKey = () => {
     const value = { [chosen.SELECTED_DIALOG_ID]: key };
@@ -97,20 +92,7 @@ const Popup = () => {
   };
 
   const handleKeyGeneration = (e) => setKey(crypto.randomUUID());
-  const handleCustomKeyClick = () => setKey(keyInputRef.current.value);
-
-  const checkAES = (genKey) => {
-    // checking how to encrypt/decrypt things
-    console.log("key", genKey);
-    const message = "Hi, i am sasha! i've beeen here before....";
-
-    const encrypt = AES.encrypt(message, genKey);
-    console.log("encrypt", encrypt);
-    console.log("encrypt-string", encrypt.toString());
-
-    console.log("decrypt", AES.decrypt(encrypt, genKey));
-    console.log("decrypt-toString", AES.decrypt(encrypt, genKey).toString(enc));
-  };
+  const handleCustomKeyClick = (value) => setKey(value);
 
   const getCurrentDialog = () =>
     chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
@@ -120,10 +102,8 @@ const Popup = () => {
         if (response) {
           chrome.storage.local.get(["keys"], (values) => {
             // need to implement loading screen until the moment storage is checked
-            if (values.keys) {
-              if (values.keys.hasOwnProperty(response.SELECTED_DIALOG_ID)) {
-                setKey(values.keys[response.SELECTED_DIALOG_ID]);
-              }
+            if (values?.keys?.[response.SELECTED_DIALOG_ID]) {
+              setKey(values.keys[response.SELECTED_DIALOG_ID]);
             }
             setLoaded(true);
           });
@@ -140,12 +120,6 @@ const Popup = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (status) {
-  //     setTimeout(getCurrentDialog, 1500);
-  //   }
-  // }, [status]);
-
   useEffect(() => {
     getCurrentDialog();
     // get status of app
@@ -156,7 +130,6 @@ const Popup = () => {
   useEffect(() => {
     if (key) {
       saveKey();
-      checkAES(key);
     }
   }, [key]);
 
@@ -178,9 +151,8 @@ const Popup = () => {
                 loaded={loaded}
                 crypkey={key}
                 handleCustomKeyClick={handleCustomKeyClick}
-                clearKey={clearKey}
                 handleKeyGeneration={handleKeyGeneration}
-                keyInputRef={keyInputRef}
+                clearKey={clearKey}
               />
             ) : (
               <h1 style={styles.pickDialog}>Выберите диалог</h1>

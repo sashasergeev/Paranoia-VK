@@ -1,0 +1,20 @@
+.ParanoiaSendBtn {
+  display: block;
+  margin: 5px auto;
+  padding: 5px 8px;
+  border: 2px solid #b1b5c0;
+  border-radius: 5px;
+  color: #1c1c1c;
+  cursor: pointer;
+  background: #fafbfc;
+  transition: 0.2s  
+}
+.ParanoiaSendBtn:hover {
+  border: 2px solid #9497a0;
+  color: black;
+}
+
+.trademarkOnMessage {
+  color: gray;
+  font-size: 12px
+}

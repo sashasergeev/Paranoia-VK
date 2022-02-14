@@ -18,6 +18,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 });
 // ---
 
+// main part
 let SELECTED_DIALOG_ID;
 let key;
 const ENCRYPTED_PREFIX = "Paranoia@EmulatedFreedom__";
@@ -61,7 +62,13 @@ const decrypt = (message) => {
 };
 
 const observeIsDialogSelected = () => {
+  const btn = document.querySelector("#paranoiaBtn");
   if (isAppOn) {
+    // check if btn is present - if not - add it
+    if (!btn) {
+      addSendButton();
+    }
+
     const profileID = document.location.search;
     if (SELECTED_DIALOG_ID !== profileID) {
       numOfViewedMessages = 0;
@@ -69,12 +76,10 @@ const observeIsDialogSelected = () => {
 
       if (profileID !== "") {
         chrome.storage.local.get("keys", (values) => {
-          if (values.keys) {
-            if (values.keys.hasOwnProperty(profileID)) {
-              // fire function to decrypt/encrypt messages
-              key = values.keys[profileID];
-              decryptMessages();
-            }
+          if (values?.keys?.[profileID]) {
+            // fire function to decrypt/encrypt messages
+            key = values.keys[profileID];
+            decryptMessages();
           }
         });
       } else {
@@ -90,6 +95,10 @@ const observeIsDialogSelected = () => {
     } else {
       numOfViewedMessages = 0;
     }
+  } else {
+    if (btn) {
+      btn.remove();
+    }
   }
 };
 
@@ -102,3 +111,46 @@ chrome.runtime.onMessage.addListener((reques, sender, callback) => {
     callback(getDialogInfo());
   }
 });
+
+const encryptMessage = (message) => {
+  if (key) {
+    return AES.encrypt(message, key).toString();
+  } else {
+    return "";
+  }
+};
+
+// inject send encrypted message button
+function addSendButton() {
+  const btn = document.createElement("input");
+  btn.value = "Paranoia@Send";
+  btn.id = "paranoiaBtn";
+  btn.type = "submit";
+  btn.setAttribute("class", "ParanoiaSendBtn");
+  const messengerMenuBox = document.querySelector("._im_chat_input_parent");
+  if (messengerMenuBox) {
+    messengerMenuBox.appendChild(btn);
+    sendBtnAction();
+  }
+}
+function sendBtnAction() {
+  document.querySelector("#paranoiaBtn").addEventListener("click", (e) => {
+    const input = document.querySelector("._im_text");
+    if (input.innerHTML.length === 0) {
+      alert("Введите сообщение...");
+      return;
+    }
+    // get all content from input into 1 string
+    const inputContent = input.innerHTML
+      .replace(/<[^>]*>/g, " ")
+      .replace(/  +/g, " ");
+    const encryptedMessage = encryptMessage(inputContent);
+
+    if (encryptMessage !== "") {
+      input.innerHTML = `${ENCRYPTED_PREFIX}${encryptedMessage}`;
+      document.querySelector(".im-send-btn_send").click();
+    } else {
+      alert("Перезагрузите страницу.");
+    }
+  });
+}
