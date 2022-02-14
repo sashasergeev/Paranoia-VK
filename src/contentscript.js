@@ -34,11 +34,11 @@ const getDialogInfo = () => {
 };
 
 const decryptMessages = () => {
-  const messages = document.querySelectorAll("._im_log_body");
+  const messages = [...document.querySelectorAll("._im_log_body")].reverse();
   if (messages.length > 0) {
     numOfViewedMessages += messages.length - numOfViewedMessages;
     // find encrypted messages
-    const encryptedMessages = [...messages].filter((e) =>
+    const encryptedMessages = messages.filter((e) =>
       e.innerText.startsWith(ENCRYPTED_PREFIX)
     );
     // decrypt messages
@@ -48,7 +48,13 @@ const decryptMessages = () => {
 
 const decrypt = (message) => {
   const rawHash = message.replace(ENCRYPTED_PREFIX, "").split(" ")[0];
-  const decryption = AES.decrypt(rawHash, key).toString(enc);
+  let decryption;
+  // try block beacuse of Malformed UTF-8 data Error
+  try {
+    decryption = AES.decrypt(rawHash, key).toString(enc);
+  } catch (error) {
+    decryption = "";
+  }
   return decryption.length !== 0
     ? decryption
     : "Paranoia@VK: Ошибка. Возможно, это сообщение было зашифровано другим ключом. Сменить ключ вы можете с помощью удаления текущего и ввода старого в окне расширения.";

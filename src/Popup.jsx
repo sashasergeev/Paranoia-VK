@@ -5,6 +5,8 @@ import Status from "./components/Status";
 
 import AES from "crypto-js/aes";
 import enc from "crypto-js/enc-utf8";
+import ChosenContainer from "./components/ChosenContainer";
+import TurnedOff from "./components/TurnedOff";
 
 const styles = {
   container: {
@@ -72,6 +74,8 @@ const Popup = () => {
   const [key, setKey] = useState();
   // state to make sure storage is checked whether there is a key or not
   const [loaded, setLoaded] = useState(false);
+  // state of app
+  const [status, setStatus] = useState(false);
 
   // ref to input with users key
   const keyInputRef = useRef();
@@ -93,6 +97,7 @@ const Popup = () => {
   };
 
   const handleKeyGeneration = (e) => setKey(crypto.randomUUID());
+  const handleCustomKeyClick = () => setKey(keyInputRef.current.value);
 
   const checkAES = (genKey) => {
     // checking how to encrypt/decrypt things
@@ -126,77 +131,63 @@ const Popup = () => {
       });
     });
 
+  // app status
+  const toggleApp = () => {
+    chrome.storage.local.set({ on: !status });
+    setStatus(!status);
+    if (!status === true) {
+      getCurrentDialog();
+    }
+  };
+
+  // useEffect(() => {
+  //   if (status) {
+  //     setTimeout(getCurrentDialog, 1500);
+  //   }
+  // }, [status]);
+
   useEffect(() => {
     getCurrentDialog();
+    // get status of app
+    chrome.storage.local.get("on", (res) => {
+      setStatus(res.on);
+    });
   }, []);
   useEffect(() => {
     if (key) {
       saveKey();
+      checkAES(key);
     }
   }, [key]);
 
   return (
     <>
-      <Status />
+      <Status toggle={toggleApp} status={status} />
       <div
         style={{
           ...styles.container,
           justifyContent: !chosen ? "space-evenly" : "space-between",
         }}
       >
-        {chosen ? (
+        {status ? (
           <>
-            <div style={styles.chosenContainer}>
-              <span style={styles.chosenTitle}>{chosen.name}</span>{" "}
-              <img style={styles.chosenImg} src={chosen.profileImg} />
-            </div>
-            {loaded ? (
-              <div style={styles.contentContainer}>
-                <div style={styles.Key}>Ключ</div>
-
-                {key ? (
-                  <div style={styles.contentContainer}>
-                    <div style={styles.deleteBtn} onClick={clearKey}>
-                      Удалить
-                    </div>
-                    <input
-                      readOnly
-                      style={styles.ActionBtn}
-                      value={key}
-                      type="text"
-                    />
-                    Поделитесь этим ключом с собеседником.
-                  </div>
-                ) : (
-                  <div style={styles.contentContainer}>
-                    <button
-                      onClick={handleKeyGeneration}
-                      style={styles.ActionBtn}
-                    >
-                      Генерировать
-                    </button>
-                    В случае, если с вами уже поделились ключом:
-                    <input
-                      ref={keyInputRef}
-                      type="text"
-                      placeholder="Введите ключ..."
-                      style={styles.KeyInput}
-                    />
-                    <button
-                      onClick={() => setKey(keyInputRef.current.value)}
-                      style={styles.ActionBtn}
-                    >
-                      Применить
-                    </button>
-                  </div>
-                )}
-              </div>
+            {chosen ? (
+              <ChosenContainer
+                styles={styles}
+                chosen={chosen}
+                loaded={loaded}
+                crypkey={key}
+                handleCustomKeyClick={handleCustomKeyClick}
+                clearKey={clearKey}
+                handleKeyGeneration={handleKeyGeneration}
+                keyInputRef={keyInputRef}
+              />
             ) : (
-              <>Loading</>
+              <h1 style={styles.pickDialog}>Выберите диалог</h1>
             )}
           </>
         ) : (
-          <h1 style={styles.pickDialog}>Выберите диалог</h1>
+          <TurnedOff />
         )}
 
         <small style={styles.tradeMark}>Paranoia@VK</small>

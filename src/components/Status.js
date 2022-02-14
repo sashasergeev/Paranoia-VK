@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 const styles = {
   switchBtn: {
@@ -32,23 +32,7 @@ const styles = {
   },
 };
 
-const Status = () => {
-  // status component with help of which user can turn on/off functionality
-  const [status, setStatus] = useState(true);
-
-  const toggleExtension = () => {
-    chrome.storage.local.set({ on: !status });
-    setStatus(!status);
-  };
-
-  useEffect(
-    () =>
-      chrome.storage.local.get("on", (res) => {
-        setStatus(res.on);
-      }),
-    []
-  );
-
+const Status = ({ toggle, status }) => {
   // styles
   const circleOn = { ...styles.circle, ...styles.circleOn };
   const circleOff = { ...styles.circle, ...styles.circleOff };
@@ -56,7 +40,7 @@ const Status = () => {
   const switchOff = { ...styles.switchBtn, ...styles.off };
 
   return (
-    <div style={status ? switchOn : switchOff} onClick={toggleExtension}>
+    <div style={status ? switchOn : switchOff} onClick={toggle}>
       <span style={status ? circleOn : circleOff} className="dot"></span>
       <span style={{ flex: "1", textAlign: "center" }}>
         {status ? "Отключить" : "Включить"}
