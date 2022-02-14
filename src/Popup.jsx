@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { render } from "react-dom";
 
+import Status from "./components/Status";
+
 import AES from "crypto-js/aes";
 import enc from "crypto-js/enc-utf8";
 
@@ -12,6 +14,7 @@ const styles = {
     height: "400px",
     display: "flex",
     flexDirection: "column",
+    justifyContent: "space-between",
   },
   pickDialog: { color: "white", margin: "5px 0" },
   chosenContainer: {
@@ -104,95 +107,101 @@ const Popup = () => {
     console.log("decrypt-toString", AES.decrypt(encrypt, genKey).toString(enc));
   };
 
-  useEffect(() => {
+  const getCurrentDialog = () =>
     chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
       const currentTabID = tabs.length === 0 ? 0 : tabs[0].id;
       chrome.tabs.sendMessage(currentTabID, "", (response) => {
         setChosen(response);
-        chrome.storage.local.get(["keys"], (values) => {
-          // need to implement loading screen until the moment storage is checked
-          if (values.keys) {
-            if (values.keys.hasOwnProperty(response.SELECTED_DIALOG_ID)) {
-              setKey(values.keys[response.SELECTED_DIALOG_ID]);
+        if (response) {
+          chrome.storage.local.get(["keys"], (values) => {
+            // need to implement loading screen until the moment storage is checked
+            if (values.keys) {
+              if (values.keys.hasOwnProperty(response.SELECTED_DIALOG_ID)) {
+                setKey(values.keys[response.SELECTED_DIALOG_ID]);
+              }
             }
-          }
-          setLoaded(true);
-        });
+            setLoaded(true);
+          });
+        }
       });
     });
-  }, []);
 
+  useEffect(() => {
+    getCurrentDialog();
+  }, []);
   useEffect(() => {
     if (key) {
       saveKey();
-      // checkAES(key);
     }
   }, [key]);
 
   return (
-    <div
-      style={{
-        ...styles.container,
-        justifyContent: !chosen ? "space-evenly" : "space-between",
-      }}
-    >
-      {chosen ? (
-        <>
-          <div style={styles.chosenContainer}>
-            <span style={styles.chosenTitle}>{chosen.name}</span>{" "}
-            <img style={styles.chosenImg} src={chosen.profileImg} />
-          </div>
-          {loaded ? (
-            <div style={styles.contentContainer}>
-              <div style={styles.Key}>Ключ</div>
-
-              {key ? (
-                <div style={styles.contentContainer}>
-                  <div style={styles.deleteBtn} onClick={clearKey}>
-                    Удалить
-                  </div>
-                  <input
-                    readOnly
-                    style={styles.ActionBtn}
-                    value={key}
-                    type="text"
-                  />
-                  Поделитесь этим ключом с собеседником.
-                </div>
-              ) : (
-                <div style={styles.contentContainer}>
-                  <button
-                    onClick={handleKeyGeneration}
-                    style={styles.ActionBtn}
-                  >
-                    Генерировать
-                  </button>
-                  В случае, если с вами уже поделились ключом:
-                  <input
-                    ref={keyInputRef}
-                    type="text"
-                    placeholder="Введите ключ..."
-                    style={styles.KeyInput}
-                  />
-                  <button
-                    onClick={() => setKey(keyInputRef.current.value)}
-                    style={styles.ActionBtn}
-                  >
-                    Применить
-                  </button>
-                </div>
-              )}
+    <>
+      <Status />
+      <div
+        style={{
+          ...styles.container,
+          justifyContent: !chosen ? "space-evenly" : "space-between",
+        }}
+      >
+        {chosen ? (
+          <>
+            <div style={styles.chosenContainer}>
+              <span style={styles.chosenTitle}>{chosen.name}</span>{" "}
+              <img style={styles.chosenImg} src={chosen.profileImg} />
             </div>
-          ) : (
-            <>Loading</>
-          )}
-        </>
-      ) : (
-        <h1 style={styles.pickDialog}>Выберите диалог</h1>
-      )}
+            {loaded ? (
+              <div style={styles.contentContainer}>
+                <div style={styles.Key}>Ключ</div>
 
-      <small style={styles.tradeMark}>Paranoia@VK</small>
-    </div>
+                {key ? (
+                  <div style={styles.contentContainer}>
+                    <div style={styles.deleteBtn} onClick={clearKey}>
+                      Удалить
+                    </div>
+                    <input
+                      readOnly
+                      style={styles.ActionBtn}
+                      value={key}
+                      type="text"
+                    />
+                    Поделитесь этим ключом с собеседником.
+                  </div>
+                ) : (
+                  <div style={styles.contentContainer}>
+                    <button
+                      onClick={handleKeyGeneration}
+                      style={styles.ActionBtn}
+                    >
+                      Генерировать
+                    </button>
+                    В случае, если с вами уже поделились ключом:
+                    <input
+                      ref={keyInputRef}
+                      type="text"
+                      placeholder="Введите ключ..."
+                      style={styles.KeyInput}
+                    />
+                    <button
+                      onClick={() => setKey(keyInputRef.current.value)}
+                      style={styles.ActionBtn}
+                    >
+                      Применить
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>Loading</>
+            )}
+          </>
+        ) : (
+          <h1 style={styles.pickDialog}>Выберите диалог</h1>
+        )}
+
+        <small style={styles.tradeMark}>Paranoia@VK</small>
+      </div>
+    </>
   );
 };
 

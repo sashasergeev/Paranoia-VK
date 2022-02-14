@@ -1,15 +1,22 @@
 import AES from "crypto-js/aes";
 import enc from "crypto-js/enc-utf8";
 
-// const getNumOfDialogs = () => {
-//   const dialogs = document.querySelectorAll("._im_dialog");
-//   return dialogs.length;
-// };
-
-// chrome.runtime.onMessage.addListener((reques, sender, callback) => {
-// console.log("Message received from sender", sender.id, reques);
-// callback(getNumOfDialogs());
-// });
+// on / off extension toggler
+// when app is off - app no longer decrypts messages and no longer
+let isAppOn;
+(function () {
+  chrome.storage.local.get(
+    "on",
+    (res) => (isAppOn = res.hasOwnProperty("on") ? res.on : true)
+  );
+})();
+// also need to track value change
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (changes.hasOwnProperty("on")) {
+    isAppOn = changes.on.newValue;
+  }
+});
+// ---
 
 let SELECTED_DIALOG_ID;
 let key;
@@ -17,20 +24,26 @@ const ENCRYPTED_PREFIX = "Paranoia@EmulatedFreedom__";
 let numOfViewedMessages = 0;
 
 const getDialogInfo = () => {
-  const name = document.querySelector("._im_page_peer_name").textContent.trim();
-  const profileImg = document.querySelector(".nim-peer_smaller  img").src;
-  return { name, profileImg, SELECTED_DIALOG_ID };
+  if (SELECTED_DIALOG_ID) {
+    const name = document
+      .querySelector("._im_page_peer_name")
+      .textContent.trim();
+    const profileImg = document.querySelector(".nim-peer_smaller  img").src;
+    return { name, profileImg, SELECTED_DIALOG_ID };
+  }
 };
 
 const decryptMessages = () => {
   const messages = document.querySelectorAll("._im_log_body");
-  numOfViewedMessages += messages.length;
-  // find encrypted messages
-  const encryptedMessages = [...messages].filter((e) =>
-    e.innerText.startsWith(ENCRYPTED_PREFIX)
-  );
-  // decrypt messages
-  encryptedMessages.map((e) => (e.innerText = decrypt(e.innerText)));
+  if (messages.length > 0) {
+    numOfViewedMessages += messages.length - numOfViewedMessages;
+    // find encrypted messages
+    const encryptedMessages = [...messages].filter((e) =>
+      e.innerText.startsWith(ENCRYPTED_PREFIX)
+    );
+    // decrypt messages
+    encryptedMessages.map((e) => (e.innerText = decrypt(e.innerText)));
+  }
 };
 
 const decrypt = (message) => {
@@ -42,33 +55,35 @@ const decrypt = (message) => {
 };
 
 const observeIsDialogSelected = () => {
-  const profileID = document.location.search;
-  if (SELECTED_DIALOG_ID !== profileID) {
-    numOfViewedMessages = 0;
-    SELECTED_DIALOG_ID = profileID;
+  if (isAppOn) {
+    const profileID = document.location.search;
+    if (SELECTED_DIALOG_ID !== profileID) {
+      numOfViewedMessages = 0;
+      SELECTED_DIALOG_ID = profileID;
 
-    if (profileID !== "") {
-      chrome.storage.local.get("keys", (values) => {
-        if (values.keys) {
-          if (values.keys.hasOwnProperty(profileID)) {
-            // fire function to decrypt/encrypt messages
-            key = values.keys[profileID];
-            decryptMessages();
+      if (profileID !== "") {
+        chrome.storage.local.get("keys", (values) => {
+          if (values.keys) {
+            if (values.keys.hasOwnProperty(profileID)) {
+              // fire function to decrypt/encrypt messages
+              key = values.keys[profileID];
+              decryptMessages();
+            }
           }
-        }
-      });
+        });
+      } else {
+        key = null;
+      }
+    }
+    if (profileID !== "") {
+      // make sure messages are being decrypted
+      const messages = document.querySelectorAll("._im_log_body");
+      if (messages.length > numOfViewedMessages && key) {
+        decryptMessages();
+      }
     } else {
-      key = null;
+      numOfViewedMessages = 0;
     }
-  }
-  if (profileID !== "") {
-    // make sure messages are being decrypted
-    const messages = document.querySelectorAll("._im_log_body");
-    if (numOfViewedMessages > 0 && messages.length > numOfViewedMessages) {
-      decryptMessages();
-    }
-  } else {
-    numOfViewedMessages = 0;
   }
 };
 
