@@ -28,7 +28,6 @@ function sendUpdateIcon(value) {
     value,
   });
 }
-
 // ---
 
 // main part
@@ -118,10 +117,15 @@ const observeIsDialogSelected = () => {
 setInterval(observeIsDialogSelected, 2000);
 
 chrome.runtime.onMessage.addListener((reques, sender, callback) => {
-  console.log("Message received from sender", sender.id, reques);
-  if (reques === "POPUP_GET_DATA" && SELECTED_DIALOG_ID !== "") {
-    // decryptMessages();
+  const isChosen = SELECTED_DIALOG_ID !== "";
+  if (reques.action === "POPUP_GET_DATA" && isChosen) {
+    // provide data to popup
     callback(getDialogInfo());
+  } else if (reques.action === "DECRYPT_MESSAGES" && isChosen) {
+    // when key is assigned, decrypt messages (only when custom key was inputted).
+    key = reques.value;
+    numOfViewedMessages = 0;
+    decryptMessages();
   }
 });
 

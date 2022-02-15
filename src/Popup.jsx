@@ -92,23 +92,38 @@ const Popup = () => {
   };
 
   const handleKeyGeneration = (e) => setKey(crypto.randomUUID());
-  const handleCustomKeyClick = (value) => setKey(value);
+
+  const handleCustomKeyClick = (value) => {
+    setKey(value);
+    // send msg to contentscript to decrypt messages
+    chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
+      const currentTabID = tabs.length === 0 ? 0 : tabs[0].id;
+      chrome.tabs.sendMessage(currentTabID, {
+        action: "DECRYPT_MESSAGES",
+        value,
+      });
+    });
+  };
 
   const getCurrentDialog = () =>
     chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
       const currentTabID = tabs.length === 0 ? 0 : tabs[0].id;
-      chrome.tabs.sendMessage(currentTabID, "POPUP_GET_DATA", (response) => {
-        setChosen(response);
-        if (response) {
-          chrome.storage.local.get(["keys"], (values) => {
-            // need to implement loading screen until the moment storage is checked
-            if (values?.keys?.[response.SELECTED_DIALOG_ID]) {
-              setKey(values.keys[response.SELECTED_DIALOG_ID]);
-            }
-            setLoaded(true);
-          });
+      chrome.tabs.sendMessage(
+        currentTabID,
+        { action: "POPUP_GET_DATA" },
+        (response) => {
+          setChosen(response);
+          if (response) {
+            chrome.storage.local.get(["keys"], (values) => {
+              // need to implement loading screen until the moment storage is checked
+              if (values?.keys?.[response.SELECTED_DIALOG_ID]) {
+                setKey(values.keys[response.SELECTED_DIALOG_ID]);
+              }
+              setLoaded(true);
+            });
+          }
         }
-      });
+      );
     });
 
   // app status
