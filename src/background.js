@@ -17,10 +17,23 @@ chrome.runtime.onInstalled.addListener(function () {
   });
 });
 
-// chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-//   // read changeInfo data and do something with it (like read the url)
-//   console.log("something has changed");
-//   if (changeInfo.url) {
-//     console.log(changeInfo.url);
-//   }
-// });
+// make icon depend on the status of an extension
+const icons = {
+  on: {
+    32: "icons/on-favicon-32x32.png",
+    16: "icons/on-favicon-16x16.png",
+  },
+  off: {
+    32: "icons/off-favicon-32x32.png",
+    16: "icons/off-favicon-16x16.png",
+  },
+};
+
+chrome.runtime.onMessage.addListener(function (msg, sender) {
+  if (msg.action === "updateIcon" && sender?.tab?.id) {
+    chrome.pageAction.setIcon({
+      tabId: sender.tab.id,
+      path: icons[msg.value],
+    });
+  }
+});

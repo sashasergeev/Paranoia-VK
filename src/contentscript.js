@@ -5,17 +5,30 @@ import enc from "crypto-js/enc-utf8";
 // when app is off - app no longer decrypts messages and no longer
 let isAppOn;
 (function () {
-  chrome.storage.local.get(
-    "on",
-    (res) => (isAppOn = res.hasOwnProperty("on") ? res.on : true)
-  );
+  chrome.storage.local.get("on", (res) => {
+    if (res.hasOwnProperty("on")) {
+      isAppOn = res.on;
+    } else {
+      isAppOn = true;
+    }
+    sendUpdateIcon(isAppOn ? "on" : "off");
+  });
 })();
 // also need to track value change
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (changes.hasOwnProperty("on")) {
     isAppOn = changes.on.newValue;
+    sendUpdateIcon(isAppOn ? "on" : "off");
   }
 });
+// icon change
+function sendUpdateIcon(value) {
+  chrome.runtime.sendMessage({
+    action: "updateIcon",
+    value,
+  });
+}
+
 // ---
 
 // main part
@@ -106,7 +119,7 @@ setInterval(observeIsDialogSelected, 2000);
 
 chrome.runtime.onMessage.addListener((reques, sender, callback) => {
   console.log("Message received from sender", sender.id, reques);
-  if (SELECTED_DIALOG_ID !== "") {
+  if (reques === "POPUP_GET_DATA" && SELECTED_DIALOG_ID !== "") {
     // decryptMessages();
     callback(getDialogInfo());
   }
