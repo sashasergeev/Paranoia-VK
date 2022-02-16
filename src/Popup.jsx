@@ -93,39 +93,33 @@ const Popup = () => {
 
   const handleKeyGeneration = (e) => setKey(crypto.randomUUID());
 
-  const handleCustomKeyClick = (value) => {
-    setKey(value);
-    // send msg to contentscript to decrypt messages
+  const sendMsg = (data, callback = null) => {
     chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
       const currentTabID = tabs.length === 0 ? 0 : tabs[0].id;
-      chrome.tabs.sendMessage(currentTabID, {
-        action: "DECRYPT_MESSAGES",
-        value,
-      });
+      chrome.tabs.sendMessage(currentTabID, data, (res) => callback(res));
     });
   };
 
-  const getCurrentDialog = () =>
-    chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
-      const currentTabID = tabs.length === 0 ? 0 : tabs[0].id;
-      chrome.tabs.sendMessage(
-        currentTabID,
-        { action: "POPUP_GET_DATA" },
-        (response) => {
-          setChosen(response);
-          if (response) {
-            chrome.storage.local.get(["keys"], (values) => {
-              // need to implement loading screen until the moment storage is checked
-              if (values?.keys?.[response.SELECTED_DIALOG_ID]) {
-                setKey(values.keys[response.SELECTED_DIALOG_ID]);
-              }
-              setLoaded(true);
-            });
-          }
-        }
-      );
-    });
+  const handleCustomKeyClick = (value) => {
+    setKey(value);
+    sendMsg({ action: "DECRYPT_MESSAGES", value });
+  };
 
+  const getCurrentDialog = () => {
+    function callback(response) {
+      setChosen(response);
+      if (response) {
+        chrome.storage.local.get(["keys"], (values) => {
+          // need to implement loading screen until the moment storage is checked
+          if (values?.keys?.[response.SELECTED_DIALOG_ID]) {
+            setKey(values.keys[response.SELECTED_DIALOG_ID]);
+          }
+          setLoaded(true);
+        });
+      }
+    }
+    sendMsg({ action: "POPUP_GET_DATA" }, callback);
+  };
   // app status
   const toggleApp = () => {
     chrome.storage.local.set({ on: !status });

@@ -54,8 +54,21 @@ const decryptMessages = () => {
     const encryptedMessages = messages.filter((e) =>
       e.innerText.startsWith(ENCRYPTED_PREFIX)
     );
+
+    // inject extension mark
+    const trademark = document.createElement("span");
+    trademark.setAttribute("class", "trademarkOnMessage");
+
     // decrypt messages
-    encryptedMessages.map((e) => (e.innerText = decrypt(e.innerText)));
+    encryptedMessages.map((message) => {
+      message.innerText = decrypt(message.innerText);
+
+      // trademark
+      const mark = trademark.cloneNode();
+      mark.innerText = "[P@VK]";
+      message.appendChild(mark);
+      return message;
+    });
   }
 };
 
@@ -77,11 +90,11 @@ const observeIsDialogSelected = () => {
   const btn = document.querySelector("#paranoiaBtn");
   if (isAppOn) {
     // check if btn is present - if not - add it
-    if (!btn) {
-      addSendButton();
-    }
+    if (!btn) addSendButton();
 
-    const profileID = document.location.search;
+    const urlParams = new URLSearchParams(document.location.search);
+    const profileID = urlParams.get("sel") ?? "";
+
     if (SELECTED_DIALOG_ID !== profileID) {
       numOfViewedMessages = 0;
       SELECTED_DIALOG_ID = profileID;
@@ -108,9 +121,7 @@ const observeIsDialogSelected = () => {
       numOfViewedMessages = 0;
     }
   } else {
-    if (btn) {
-      btn.remove();
-    }
+    if (btn) btn.remove();
   }
 };
 
