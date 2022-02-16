@@ -1,4 +1,5 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
+import QRCode from "react-qr-code";
 
 const ChosenContainer = ({
   styles,
@@ -10,6 +11,13 @@ const ChosenContainer = ({
   chosen,
 }) => {
   const keyInputRef = useRef();
+  const [isCopied, setIsCopied] = useState(false);
+
+  const saveToClipboard = () => {
+    navigator.clipboard.writeText(crypkey);
+    setIsCopied(true);
+    setInterval(() => setIsCopied(false), 2000);
+  };
 
   return (
     <>
@@ -19,6 +27,7 @@ const ChosenContainer = ({
       </div>
       {loaded ? (
         <div style={styles.contentContainer}>
+          {crypkey && <QRCode value={crypkey} size={125} />}
           <div style={styles.Key}>Ключ</div>
 
           {crypkey ? (
@@ -29,8 +38,9 @@ const ChosenContainer = ({
               <input
                 readOnly
                 style={styles.ActionBtn}
-                value={crypkey}
+                value={isCopied ? "Скопировано!" : crypkey}
                 type="text"
+                onClick={saveToClipboard}
               />
               Поделитесь этим ключом с собеседником.
             </div>

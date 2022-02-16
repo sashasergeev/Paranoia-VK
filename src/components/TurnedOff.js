@@ -10,6 +10,7 @@ const styles = {
     flex: "1",
     display: "flex",
     justifyContent: "center",
+    color: "black",
     alignItems: "center",
   },
   deleteBtn: {

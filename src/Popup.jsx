@@ -8,13 +8,14 @@ import TurnedOff from "./components/TurnedOff";
 
 const styles = {
   container: {
-    background: "#c1b7eb",
+    background: "rgb(23 20 32)",
     textAlign: "center",
     width: "275px",
     height: "400px",
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
+    color: "white",
   },
   pickDialog: { color: "white", margin: "5px 0" },
   chosenContainer: {
@@ -39,6 +40,7 @@ const styles = {
     borderRadius: "20px",
     width: "fit-content",
     cursor: "pointer",
+    textAlign: "center",
   },
   contentContainer: {
     display: "flex",
@@ -52,7 +54,7 @@ const styles = {
   },
   deleteBtn: {
     color: "white",
-    background: "#d95996",
+    background: "rgba(233, 30, 99, 0.42)",
     cursor: "pointer",
     fontSize: "13px",
     padding: "5px 9px",
