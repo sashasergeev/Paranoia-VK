@@ -6,66 +6,7 @@ import Status from "./components/Status";
 import ChosenContainer from "./components/ChosenContainer";
 import TurnedOff from "./components/TurnedOff";
 
-const styles = {
-  container: {
-    background: "rgb(23 20 32)",
-    textAlign: "center",
-    width: "275px",
-    height: "400px",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    color: "white",
-  },
-  pickDialog: { color: "white", margin: "5px 0" },
-  chosenContainer: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-around",
-    backgroundColor: "#171420",
-    boxShadow: "-1px 0px 14px 0px #00000085",
-    padding: "5px",
-    marginBottom: "5px",
-  },
-  chosenTitle: { color: "white", fontWeight: "700", fontSize: "15px" },
-  chosenImg: {
-    width: "35px",
-    height: "35px",
-    borderRadius: "100%",
-  },
-  tradeMark: { color: "#787878", fontWeight: "600", paddingBottom: "5px" },
-  ActionBtn: {
-    padding: "7px 14px",
-    border: "none",
-    borderRadius: "20px",
-    width: "fit-content",
-    cursor: "pointer",
-    textAlign: "center",
-  },
-  contentContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "10px",
-  },
-  Key: {
-    fontWeight: "700",
-    fontSize: "20px",
-  },
-  deleteBtn: {
-    color: "white",
-    background: "rgba(233, 30, 99, 0.42)",
-    cursor: "pointer",
-    fontSize: "13px",
-    padding: "5px 9px",
-    borderRadius: "9999px",
-  },
-  KeyInput: {
-    border: "none",
-    padding: "5px 9px",
-    borderRadius: "99px",
-  },
-};
+import "./styles/popup.css";
 
 const Popup = () => {
   // dialog data (name, profile Pic, user ID)
@@ -148,8 +89,8 @@ const Popup = () => {
     <>
       <Status toggle={toggleApp} status={status} />
       <div
+        className="popupContainer"
         style={{
-          ...styles.container,
           justifyContent: !chosen ? "space-evenly" : "space-between",
         }}
       >
@@ -157,7 +98,6 @@ const Popup = () => {
           <>
             {chosen ? (
               <ChosenContainer
-                styles={styles}
                 chosen={chosen}
                 loaded={loaded}
                 crypkey={key}
@@ -166,14 +106,14 @@ const Popup = () => {
                 clearKey={clearKey}
               />
             ) : (
-              <h1 style={styles.pickDialog}>Выберите диалог</h1>
+              <h1 className="pickDialog">Выберите диалог</h1>
             )}
           </>
         ) : (
           <TurnedOff />
         )}
 
-        <small style={styles.tradeMark}>Paranoia@VK</small>
+        <small className="trademark">Paranoia@VK</small>
       </div>
     </>
   );

@@ -25,12 +25,16 @@ module.exports = {
           },
         },
       },
+      {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
+      },
     ],
   },
   plugins: [
     new CopyPlugin({
       // manage manifest.json file
-      patterns: [{ from: "public" }, { from: "src/styles" }],
+      patterns: [{ from: "public" }, { from: "src/styles/main.css" }],
     }),
     new HtmlWebpackPlugin({
       // manage .html

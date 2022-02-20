@@ -2,7 +2,6 @@ import React, { useRef, useState } from "react";
 import QRCode from "react-qr-code";
 
 const ChosenContainer = ({
-  styles,
   loaded,
   crypkey,
   handleCustomKeyClick,
@@ -21,23 +20,23 @@ const ChosenContainer = ({
 
   return (
     <>
-      <div style={styles.chosenContainer}>
-        <span style={styles.chosenTitle}>{chosen.name}</span>{" "}
-        <img style={styles.chosenImg} src={chosen.profileImg} />
+      <div className="chosenContainer">
+        <span className="chosenTitle">{chosen.name}</span>{" "}
+        <img className="chosenImg" src={chosen.profileImg} />
       </div>
       {loaded ? (
-        <div style={styles.contentContainer}>
+        <div className="contentContainer">
           {crypkey && <QRCode value={crypkey} size={125} />}
-          <div style={styles.Key}>Ключ</div>
+          <div className="Key">Ключ</div>
 
           {crypkey ? (
-            <div style={styles.contentContainer}>
-              <div style={styles.deleteBtn} onClick={clearKey}>
+            <div className="contentContainer">
+              <div className="deleteBtn" onClick={clearKey}>
                 Удалить
               </div>
               <input
                 readOnly
-                style={styles.ActionBtn}
+                className="ActionBtn"
                 value={isCopied ? "Скопировано!" : crypkey}
                 type="text"
                 onClick={saveToClipboard}
@@ -45,8 +44,8 @@ const ChosenContainer = ({
               Поделитесь этим ключом с собеседником.
             </div>
           ) : (
-            <div style={styles.contentContainer}>
-              <button onClick={handleKeyGeneration} style={styles.ActionBtn}>
+            <div className="contentContainer">
+              <button onClick={handleKeyGeneration} className="ActionBtn">
                 Генерировать
               </button>
               В случае, если с вами уже поделились ключом:
@@ -54,11 +53,11 @@ const ChosenContainer = ({
                 ref={keyInputRef}
                 type="text"
                 placeholder="Введите ключ..."
-                style={styles.KeyInput}
+                className="KeyInput"
               />
               <button
                 onClick={() => handleCustomKeyClick(keyInputRef.current.value)}
-                style={styles.ActionBtn}
+                className="ActionBtn"
               >
                 Применить
               </button>

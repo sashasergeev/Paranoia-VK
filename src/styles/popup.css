@@ -1,0 +1,144 @@
+.popupContainer {
+    background: rgb(23 20 32);
+    text-align: center;
+    width: 275px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: white;
+}
+.trademark {
+    color: #787878;
+    font-weight: 600;
+    padding-bottom: 5px 
+}
+.chosenContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: #171420;
+    box-shadow: -1px 0px 14px 0px #00000085;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+.contentContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.ActionBtn {
+    padding: 7px 14px;
+    border: none;
+    border-radius: 20px;
+    width: fit-content;
+    cursor: pointer;
+    text-align: center;
+    transition: 0.2s;
+}.ActionBtn:hover {
+    background: white;
+}
+
+.deleteBtn {
+    color: white;
+    background: rgba(233, 30, 99, 0.42);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 5px 9px;
+    border-radius: 9999px;
+    border: none;
+    transition: 0.2s;
+}.deleteBtn:hover {
+    background: rgba(233, 30, 98, 0.719);
+}
+
+.chosenTitle {
+  color: white;
+  font-weight: 700;
+  font-size: 15px
+}
+.pickDialog {
+    color: white;
+    margin: 5px 0 
+}
+.chosenTitle {
+    color: white;
+    font-weight: 700;
+    font-size: 15px
+}
+.chosenImg {
+    width: 35px;
+    height: 35px;
+    border-radius: 100%;
+}
+.Key {
+    font-weight: 700;
+    font-size: 20px;
+}
+.KeyInput {
+    border: none;
+    padding: 5px 9px;
+    border-radius: 99px;
+}
+
+/* status */
+.switchBtn {
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    gap: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.switchBtn.on {
+    background-color: #121838 
+}.switchBtn.on:hover {
+    background-color: #1e2657 
+}
+.switchBtn.off {
+    background-color: #e91e63 
+}.switchBtn.off:hover {
+    background-color: #cc2059 
+}
+
+.circle {
+    border-radius: 50%;
+    height: 25px;
+    width: 25px;
+    background-color: #bbb;
+    display: inline-block;
+}
+.circle.on {
+    background-color: #ff0057;
+    box-shadow: -1px 1px 9px 25px #ff0057;
+}
+.circle.off {
+    background-color: #171420;
+    box-shadow: -1px 1px 0px 25px #171420;
+}
+.statusText {
+    flex: 1;
+    text-align: center
+}
+
+/* turned off */
+.containerOff {
+    border-radius: 35px;
+    font-size: 16px;
+    padding: 6px 12px;
+    background: rgb(255, 255, 255);
+    margin: 15px;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    color: black;
+    align-items: center;
+}
+.info {
+    margin: 8px;
+    color: gray;
+}
